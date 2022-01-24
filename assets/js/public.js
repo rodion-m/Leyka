@@ -1077,8 +1077,9 @@ var leykaValidateForm,
 
 	leykaValidateForm = function($_form){
 
+        var email_field = $_form.find('.donor__textfield--email input');
 		var is_valid = true,
-			email = $.trim($_form.find('.donor__textfield--email input').val()),
+			email = $.trim(email_field.val()),
 			$amount_field = $_form.find('.amount__figure input.leyka_donation_amount'),
 			amount = parseInt($amount_field.val().replace(/\s/g, '')),
 			$comment_filed = $_form.find(':input.leyka-donor-comment'),
@@ -1093,12 +1094,15 @@ var leykaValidateForm,
 
 		}
 
-		if(email.length === 0 || !is_email(email)) {
+        const email_required = email_field.hasClass('required');
+        if(!is_email(email)) {
 
-            is_valid = false;
-			$_form.find('.donor__textfield--email').addClass('invalid');
+            if(email_required || email.length > 0) {
+                is_valid = false;
+                $_form.find('.donor__textfield--email').addClass('invalid');
+            }
 
-		}
+        }
 
 		if(
 			$comment_filed.length &&
@@ -1304,10 +1308,15 @@ var leykaValidateForm,
 
             } else if($field_wrapper.hasClass('donor__textfield--email')) {
 
-                if(test_val.length > 0 && is_email(test_val)){
-                    $field_wrapper.addClass('valid');
-                } else {
-                    $field_wrapper.addClass('invalid');
+                const email_required = $field_wrapper.hasClass('required');
+                if(!is_email(test_val)) {
+
+                    if(email_required || test_val.length > 0) {
+                        $field_wrapper.addClass('invalid');
+                    } else {
+                        $field_wrapper.addClass('valid');
+                    }
+
                 }
 
             } else if($field_wrapper.hasClass('donor__textfield--phone')) {
@@ -2872,9 +2881,10 @@ jQuery(document).ready(function($){
     }
     
     function isFormFill($_form) {
-        
-		var is_filled = true,
-			email = $.trim($_form.find('.donor__textfield--email input').val()),
+
+        const email_field = $_form.find('.donor__textfield--email input');
+        var is_filled = true,
+			email = $.trim(email_field.val()),
 			$amount_field = $_form.find('.amount__figure input.leyka_donation_amount'),
 			amount = parseInt($amount_field.val().replace(/\s/g, '')),
 			$agree_terms = $_form.find('.donor__oferta input[name="leyka_agree"]'),
@@ -2884,9 +2894,10 @@ jQuery(document).ready(function($){
             is_filled = false;
 		}
 
-		if(email.length === 0) {
+        const email_required = email_field.hasClass('required');
+        if(email_required && email.length === 0) {
             is_filled = false;
-		}
+        }
 
 		if(
 			($agree_terms.length && !$agree_terms.prop('checked')) ||
